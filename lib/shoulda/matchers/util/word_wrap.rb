@@ -112,7 +112,7 @@ module Shoulda
 
       def initialize(line, indent: 0)
         @indent = indent
-        @original_line = @line_to_wrap = Text.new(line)
+        @line_to_wrap = Text.new(line)
         @indentation = ' ' * indent
         @indentation_read = false
       end
@@ -124,6 +124,7 @@ module Shoulda
           lines = []
 
           loop do
+            @previous_line_to_wrap = line_to_wrap
             new_line = indentation + line_to_wrap
             result = wrap_line(new_line)
             lines << normalize_whitespace(result[:fitted_line])
@@ -135,7 +136,7 @@ module Shoulda
 
             @line_to_wrap = result[:leftover]
 
-            if line_to_wrap.empty? || @original_line == @line_to_wrap
+            if line_to_wrap.empty? || previous_line_to_wrap == line_to_wrap
               break
             end
           end
@@ -146,7 +147,8 @@ module Shoulda
 
       protected
 
-      attr_reader :indent, :original_line, :line_to_wrap, :indentation
+      attr_reader :indent, :original_line, :line_to_wrap, :indentation,
+        :previous_line_to_wrap
 
       private
 
@@ -164,7 +166,12 @@ module Shoulda
       def wrap_line(line)
         if line.length > TERMINAL_WIDTH
           index = determine_where_to_break_line(line)
-          fitted_line = line[0 .. index].rstrip
+
+          if index == -1
+            index = line.index(/\s/)
+          end
+
+          fitted_line = line[0..index].rstrip
           leftover = line[index + 1 .. -1]
         else
           fitted_line = line

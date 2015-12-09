@@ -196,14 +196,48 @@ And now we return.
     MESSAGE
   end
 
-  it "doesn't get stuck trying to wrap a line that can't be wrapped" do
-    wrapped_message = described_class.word_wrap(<<-MESSAGE)
-Loremipsumdolorsitamet,consecteturadipiscingelit.Aeneanluctus,ipsumsitametefficiturfeugiat,
-    MESSAGE
+  context "given a string with a word longer than the max character limit" do
+    context "which stands on its own" do
+      it "simply returns the string" do
+        wrapped_message = described_class.word_wrap(<<-MESSAGE)
+Foo bar baz and stuff and things Loremipsumdolorsitamet,consecteturadipiscingelit.Aeneanluctus,ipsumsitametefficiturfeugiat,
+        MESSAGE
 
-    expect(wrapped_message).to eq(<<-MESSAGE.rstrip)
+        expect(wrapped_message).to eq(<<-MESSAGE.rstrip)
+Foo bar baz and stuff and things
 Loremipsumdolorsitamet,consecteturadipiscingelit.Aeneanluctus,ipsumsitametefficiturfeugiat,
-    MESSAGE
+        MESSAGE
+      end
+    end
+
+    context "which is preceded by some text" do
+      it "leaves the word on its own line" do
+        wrapped_message = described_class.word_wrap(<<-MESSAGE)
+Foo bar baz and stuff and things Loremipsumdolorsitamet,consecteturadipiscingelit.Aeneanluctus,ipsumsitametefficiturfeugiat,
+        MESSAGE
+
+        expect(wrapped_message).to eq(<<-MESSAGE.rstrip)
+Foo bar baz and stuff and things
+Loremipsumdolorsitamet,consecteturadipiscingelit.Aeneanluctus,ipsumsitametefficiturfeugiat,
+        MESSAGE
+      end
+    end
+
+    context "which is followed by some text" do
+      it "leaves the word on its own line" do
+        wrapped_message = described_class.word_wrap(<<-MESSAGE)
+Loremipsumdolorsitamet,consecteturadipiscingelit.Aeneanluctus,ipsumsitametefficiturfeugiat, and something goes after this
+        MESSAGE
+
+        expect(wrapped_message).to eq(<<-MESSAGE.rstrip)
+Loremipsumdolorsitamet,consecteturadipiscingelit.Aeneanluctus,ipsumsitametefficiturfeugiat,
+and something goes after this
+        MESSAGE
+      end
+    end
+  end
+
+  it "doesn't get stuck trying to wrap a line that can't be wrapped" do
   end
 
   context "when :indent is given" do
