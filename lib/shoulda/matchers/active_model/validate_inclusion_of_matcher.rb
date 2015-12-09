@@ -430,7 +430,9 @@ EOT
         end
 
         def disallows_lower_value
-          @minimum == 0 || disallows_value_of(@minimum - 1, @low_message)
+          @minimum.nil? ||
+            @minimum == 0 ||
+            disallows_value_of(@minimum - 1, @low_message)
         end
 
         def disallows_higher_value

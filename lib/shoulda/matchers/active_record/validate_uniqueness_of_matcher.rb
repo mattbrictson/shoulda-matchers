@@ -452,11 +452,12 @@ module Shoulda
 
         def arbitrary_non_blank_value
           limit = column_limit_for(@attribute)
+          non_blank_value = 'an arbitrary value'
 
-          if limit
+          if limit && limit < non_blank_value.length
             'x' * limit
           else
-            'an arbitrary value'
+            non_blank_value
           end
         end
 
